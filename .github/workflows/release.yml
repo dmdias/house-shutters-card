@@ -1,0 +1,27 @@
+name: Release
+
+on:
+  release:
+    types: [published]
+
+permissions:
+  contents: write
+
+jobs:
+  attach:
+    name: Attach card to the release
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check the card version matches the tag
+        run: |
+          version=$(grep -oP 'CARD_VERSION = "\K[^"]+' dist/house-shutters-card.js)
+          tag="${GITHUB_REF_NAME#v}"
+          if [ "$version" != "$tag" ]; then
+            echo "CARD_VERSION ($version) does not match the release tag ($tag)"
+            exit 1
+          fi
+      - name: Upload house-shutters-card.js
+        run: gh release upload "$GITHUB_REF_NAME" dist/house-shutters-card.js --clobber
+        env:
+          GH_TOKEN: ${{ github.token }}

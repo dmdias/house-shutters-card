@@ -1,0 +1,6 @@
+{
+  "name": "House Shutters Card",
+  "filename": "house-shutters-card.js",
+  "render_readme": true,
+  "homeassistant": "2024.1.0"
+}
