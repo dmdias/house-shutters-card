@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.6.0
+
+- `labels` option: show the names and states over the photo always, only on hover, or never
+- `label: hidden` hides the label of one window
+
 ## 1.5.1
 
 First public release.

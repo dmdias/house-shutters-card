@@ -9,6 +9,7 @@
  *   image: /local/house/front.jpg
  *   color: "#2a5152"              # optional, shutter colour
  *   slat_size: 0.28               # optional, slat height in % of the photo width
+ *   labels: always                # optional: always | hover | none (names and states over the photo)
  *   windows:                      # box of each window, in % of the photo
  *     - entity: cover.living_room
  *       name: Living room
@@ -16,7 +17,7 @@
  *       y: 60
  *       w: 12.5
  *       h: 15.6
- *       label: below              # optional, name under the window instead of above
+ *       label: below              # optional: below (name under the window) or hidden
  *   others:                       # shutters not visible in the photo
  *     - entity: cover.bathroom
  *       name: Bathroom
@@ -46,7 +47,7 @@
  * (0 = closed, 100 = open). Tap a window or a gate for its controls.
  */
 
-const CARD_VERSION = "1.5.1";
+const CARD_VERSION = "1.6.0";
 
 const hscEsc = (v) => String(v ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
 
@@ -59,7 +60,7 @@ class HouseShuttersCard extends HTMLElement {
 
   setConfig(config) {
     if (!config.image) throw new Error("image is required");
-    this._config = { color: "#2a5152", slat_size: 0.28, windows: [], others: [], lights: [], other_lights: [], gates: [], ...config };
+    this._config = { color: "#2a5152", slat_size: 0.28, labels: "always", windows: [], others: [], lights: [], other_lights: [], gates: [], ...config };
     this._built = false;
     this._build();
   }
@@ -128,7 +129,7 @@ class HouseShuttersCard extends HTMLElement {
       .join("");
     const windows = c.windows
       .map(
-        (w, i) => `<div class="win${w.label === "below" ? " label-below" : ""}" data-i="${i}" style="left:${w.x}%;top:${w.y}%;width:${w.w}%;height:${w.h}%">
+        (w, i) => `<div class="win${w.label === "below" ? " label-below" : ""}${w.label === "hidden" ? " label-hidden" : ""}" data-i="${i}" style="left:${w.x}%;top:${w.y}%;width:${w.w}%;height:${w.h}%">
           <div class="shutter"><i class="bar"></i></div>
           <span class="tag"><b>${hscEsc(w.name || "")}</b><em></em></span>
         </div>`
@@ -144,7 +145,7 @@ class HouseShuttersCard extends HTMLElement {
       .map((o, i) => `<button class="other" data-o="${i}"><span class="mini"><i></i></span><b>${hscEsc(o.name || "")}</b><em></em></button>`)
       .join("");
     this.shadowRoot.innerHTML = `<style>${HSC_STYLES}</style>
-      <ha-card style="--slat:${hscEsc(c.color)}">
+      <ha-card class="labels-${hscEsc(["hover", "none"].includes(c.labels) ? c.labels : "always")}" style="--slat:${hscEsc(c.color)}">
         ${c.title ? `<div class="title">${hscEsc(c.title)}</div>` : ""}
         <div class="photo"><img src="${hscEsc(c.image)}" alt="">${gates}${windows}${lamps}<div class="panel" hidden></div></div>
         ${others || otherLights ? `<div class="others">${others}${otherLights}</div>` : ""}
@@ -348,6 +349,10 @@ const HSC_STYLES = `
     padding:3px 8px; border-radius:8px; font-size:12px; line-height:1.3; white-space:nowrap; display:flex; gap:6px; pointer-events:none; }
   .tag em { font-style:normal; opacity:.85; }
   .win.label-below .tag { bottom:auto; top:calc(100% + 4px); }
+  .tag { transition:opacity .2s ease; }
+  .win.label-hidden .tag, .labels-none .tag { display:none; }
+  .labels-hover .tag { opacity:0; }
+  .labels-hover .win:hover .tag, .labels-hover .gate:hover .tag { opacity:1; }
   .win.unavailable .tag { background:rgba(150,30,30,.7); }
   .panel { position:absolute; z-index:3; width:180px; background:rgba(20,26,36,.92); color:#fff; border-radius:12px; padding:8px 10px; line-height:1.2;
     box-shadow:0 6px 18px rgba(0,0,0,.4); backdrop-filter:blur(6px); }

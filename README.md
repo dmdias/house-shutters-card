@@ -103,7 +103,8 @@ other_lights:
 | `title` | Optional title above the photo. |
 | `color` | Shutter colour (default `#2a5152`, a dark aluminium green). |
 | `slat_size` | Slat height in % of the photo width (default `0.28`). |
-| `windows` | Shutters on the photo: `entity`, `name`, the box `x`, `y`, `w`, `h` (%), and `label: below` to put the name under the window. |
+| `labels` | Names and states over the photo: `always` (default), `hover` (only when the pointer is over a window or gate) or `none`. |
+| `windows` | Shutters on the photo: `entity`, `name`, the box `x`, `y`, `w`, `h` (%), and `label: below` to put the name under the window or `label: hidden` to hide it. |
 | `lights` | Lamps on the photo: `entity`, `name`, the centre `x`, `y` (%), and `size` to scale the lamp and its glow. Any entity that can be toggled works (light, switch). |
 | `gates` | Swing gates, see [Gates](#gates). |
 | `others` | Shutters not visible in the photo, shown as buttons under it. |
